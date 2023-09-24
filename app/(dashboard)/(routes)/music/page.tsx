@@ -1,55 +1,51 @@
-"use client"
+"use client";
 import Heading from "@/components/heading";
 import { Music } from "lucide-react";
-import { useForm } from 'react-hook-form'
-import * as z from "zod"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { formSchema }  from './constans'
-import { Input } from "@/components/ui/input"
-import axios from 'axios'
+import { useForm } from "react-hook-form";
+import * as z from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { formSchema } from "./constans";
+import { Input } from "@/components/ui/input";
+import axios from "axios";
 
-
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem
-} from "@/components/ui/form"
+import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Empty } from "@/components/empty";
 import { Loader } from "@/components/loader";
-
+import { useProModal } from "@/hooks/use-pro-modal";
 
 const MusicPage = () => {
-  const router = useRouter()
-  const [music, setMusic] = useState<string>()
+  const { onOpen } = useProModal();
+  const router = useRouter();
+  const [music, setMusic] = useState<string>();
   const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema), 
+    resolver: zodResolver(formSchema),
     defaultValues: {
-      prompt: ""
-    }
-  })
+      prompt: "",
+    },
+  });
 
-  const isLoading = form.formState.isSubmitting
+  const isLoading = form.formState.isSubmitting;
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      setMusic(undefined)
+      setMusic(undefined);
 
-      const response = await axios.post('/api/music', values)
-      setMusic(response.data.audio)
+      const response = await axios.post("/api/music", values);
+      setMusic(response.data.audio);
       form.reset();
-    } catch (error) {
-      console.log(error)
+    } catch (error: any) {
+      if (error?.response?.status === 403) {
+        onOpen();
+      }
     } finally {
-      router.refresh()
+      router.refresh();
     }
-
-  }
-  return ( 
+  };
+  return (
     <div>
-      <Heading 
+      <Heading
         title="Music Generation"
         description="Turn your prompt to music."
         icon={Music}
@@ -64,7 +60,7 @@ const MusicPage = () => {
               className="rounded-lg border w-full p-4 px-3 md:px-6 focus-within:shadow-sm grid grid-cols-12 gap-2"
             >
               <FormField
-                name='prompt'
+                name="prompt"
                 render={({ field }) => (
                   <FormItem className="col-span-12 lg:col-span-10">
                     <FormControl className="m-0 p-0">
@@ -88,31 +84,21 @@ const MusicPage = () => {
           </Form>
         </div>
         <div className="space-y-4 mt-4 ">
-          {
-            isLoading && (
-              <div className="p-8 rounded-lg w-full flex items-center justify-center bg-muted">
-                <Loader />
-              </div>
-            )
-          }
-          { 
-            !music && !isLoading && (
-              <Empty
-                label="No music started."
-              />
-            )
-          }
-          {
-            music && (
-              <audio controls className="w-full mt-8 " >
-                <source src={music} />
-              </audio>
-            )
-          }
+          {isLoading && (
+            <div className="p-8 rounded-lg w-full flex items-center justify-center bg-muted">
+              <Loader />
+            </div>
+          )}
+          {!music && !isLoading && <Empty label="No music started." />}
+          {music && (
+            <audio controls className="w-full mt-8 ">
+              <source src={music} />
+            </audio>
+          )}
         </div>
       </div>
     </div>
-   );
-}
- 
+  );
+};
+
 export default MusicPage;
