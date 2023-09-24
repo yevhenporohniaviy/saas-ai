@@ -1,54 +1,51 @@
-"use client"
+"use client";
 import Heading from "@/components/heading";
 import { Video } from "lucide-react";
-import { useForm } from 'react-hook-form'
-import * as z from "zod"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { formSchema }  from './constans'
-import { Input } from "@/components/ui/input"
-import axios from 'axios'
+import { useForm } from "react-hook-form";
+import * as z from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { formSchema } from "./constans";
+import { Input } from "@/components/ui/input";
+import axios from "axios";
 
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem
-} from "@/components/ui/form"
+import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Empty } from "@/components/empty";
 import { Loader } from "@/components/loader";
-
+import { useProModal } from "@/hooks/use-pro-modal";
 
 const VideoPage = () => {
-  const router = useRouter()
-  const [video, setVideo] = useState<string>()
+  const { onOpen } = useProModal();
+  const router = useRouter();
+  const [video, setVideo] = useState<string>();
   const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema), 
+    resolver: zodResolver(formSchema),
     defaultValues: {
-      prompt: ""
-    }
-  })
+      prompt: "",
+    },
+  });
 
-  const isLoading = form.formState.isSubmitting
+  const isLoading = form.formState.isSubmitting;
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      setVideo(undefined)
+      setVideo(undefined);
 
-      const response = await axios.post('/api/video', values)
-      setVideo(response.data[0])
+      const response = await axios.post("/api/video", values);
+      setVideo(response.data[0]);
       form.reset();
-    } catch (error) {
-      console.log(error)
+    } catch (error: any) {
+      if (error?.response?.status === 403) {
+        onOpen();
+      }
     } finally {
-      router.refresh()
+      router.refresh();
     }
-
-  }
-  return ( 
+  };
+  return (
     <div>
-      <Heading 
+      <Heading
         title="Video Generation"
         description="Turn your prompt to video."
         icon={Video}
@@ -63,7 +60,7 @@ const VideoPage = () => {
               className="rounded-lg border w-full p-4 px-3 md:px-6 focus-within:shadow-sm grid grid-cols-12 gap-2"
             >
               <FormField
-                name='prompt'
+                name="prompt"
                 render={({ field }) => (
                   <FormItem className="col-span-12 lg:col-span-10">
                     <FormControl className="m-0 p-0">
@@ -87,31 +84,24 @@ const VideoPage = () => {
           </Form>
         </div>
         <div className="space-y-4 mt-4 ">
-          {
-            isLoading && (
-              <div className="p-8 rounded-lg w-full flex items-center justify-center bg-muted">
-                <Loader />
-              </div>
-            )
-          }
-          { 
-            !video && !isLoading && (
-              <Empty
-                label="No video started."
-              />
-            )
-          }
-          {
-            video && (
-              <video className="w-full aspect-video mt-8 rounded-lg border bg-black" controls> 
-                <source src={video}/>
-              </video>
-            )
-          }
+          {isLoading && (
+            <div className="p-8 rounded-lg w-full flex items-center justify-center bg-muted">
+              <Loader />
+            </div>
+          )}
+          {!video && !isLoading && <Empty label="No video started." />}
+          {video && (
+            <video
+              className="w-full aspect-video mt-8 rounded-lg border bg-black"
+              controls
+            >
+              <source src={video} />
+            </video>
+          )}
         </div>
       </div>
     </div>
-   );
-}
- 
+  );
+};
+
 export default VideoPage;

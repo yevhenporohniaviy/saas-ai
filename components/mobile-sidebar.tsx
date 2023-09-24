@@ -1,38 +1,37 @@
-"use client"
+"use client";
+interface MobileSidebarProps {
+  apiLimitCount: number;
+}
 
 import { Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Sidebar from "@/components/sidebar";
-import {
-  Sheet,
-  SheetContent,
-  SheetTrigger,
-} from "@/components/ui/sheet"
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useEffect, useState } from "react";
 
-const MobileSidebar = () => {
-  const [isMounted, setIsMounted] = useState(false)
+const MobileSidebar = ({ apiLimitCount }: MobileSidebarProps) => {
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
-    setIsMounted(true)
-  }, [])
+    setIsMounted(true);
+  }, []);
 
   if (!isMounted) {
     return null;
   }
 
-  return ( 
+  return (
     <Sheet>
       <SheetTrigger>
-        <Button variant="ghost" size='icon' className="md:hidden">
-          <Menu/>
-        </Button>  
+        <Button variant="ghost" size="icon" className="md:hidden">
+          <Menu />
+        </Button>
       </SheetTrigger>
-      <SheetContent side='left' className="p-0">
-        <Sidebar/>
+      <SheetContent side="left" className="p-0">
+        <Sidebar apiLimitCount={apiLimitCount} />
       </SheetContent>
     </Sheet>
-   );
-}
- 
+  );
+};
+
 export default MobileSidebar;
