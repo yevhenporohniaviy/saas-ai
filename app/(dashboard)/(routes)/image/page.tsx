@@ -14,6 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { toast } from "react-hot-toast";
 
 import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
@@ -52,6 +53,8 @@ const ImagePage = () => {
     } catch (error: any) {
       if (error?.response?.status === 403) {
         onOpen();
+      } else {
+        toast.error("Something went wrong!");
       }
     } finally {
       router.refresh();

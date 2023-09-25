@@ -11,7 +11,6 @@ import {
 import { useProModal } from "@/hooks/use-pro-modal";
 import { Badge } from "@/components/ui/badge";
 import {
-  ArrowRight,
   Check,
   Code,
   ImageIcon,
@@ -20,6 +19,7 @@ import {
   VideoIcon,
   Zap,
 } from "lucide-react";
+import { toast } from "react-hot-toast";
 import { Card } from "./ui/card";
 import { cn } from "@/lib/utils";
 import { Button } from "./ui/button";
@@ -68,7 +68,7 @@ export const ProModal = () => {
       const response = axios.get("api/stripe");
       window.location.href = (await response).data.url;
     } catch (error) {
-      console.log(error, "STRIPE_CLIENT_ERROR");
+      toast.error("Something went wrong!");
     } finally {
       setLoading(false);
     }
